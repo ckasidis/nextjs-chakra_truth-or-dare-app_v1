@@ -4,7 +4,7 @@ import { theme } from '@chakra-ui/pro-theme';
 
 const myTheme = extendTheme(
 	{
-		colors: { ...theme.colors, brand: theme.colors.orange },
+		colors: { ...theme.colors, brand: theme.colors.red },
 	},
 	theme
 );

@@ -1,9 +1,14 @@
 import { NextPage } from 'next';
 import { useState } from 'react';
 import {
+	Box,
 	Button,
 	Center,
+	CloseButton,
+	FormControl,
+	FormErrorMessage,
 	Heading,
+	Input,
 	SimpleGrid,
 	Stack,
 	Tab,
@@ -11,7 +16,10 @@ import {
 	TabPanel,
 	TabPanels,
 	Tabs,
+	Text,
 } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
+import * as Yup from 'yup';
 
 const categoryNames = [
 	'cat1',
@@ -37,22 +45,30 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 	const [categories, setCategories] = useState<Category[]>(
 		categoryNames.map((name) => ({ name, selected: false }))
 	);
+	const [playerList, setPlayerList] = useState<string[]>([]);
 
 	return (
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>
-			<Stack spacing={4}>
+			<Stack w={'90%'}>
 				<Heading as={'h1'} size={{ base: 'sm' }} textAlign={'center'}>
 					Game Settings
 				</Heading>
-				<Tabs>
+				<Tabs pt={4} pb={8}>
 					<TabList>
 						<Tab>Categories</Tab>
 						<Tab>Players</Tab>
 						<Tab>Rounds</Tab>
 					</TabList>
-					<TabPanels>
-						<TabPanel h={{ base: 200 }} my={4} overflowY={'scroll'}>
-							<SimpleGrid alignContent={'start'} columns={2} spacing={2}>
+					<TabPanels h={{ base: 270 }}>
+						<TabPanel>
+							<SimpleGrid
+								columns={2}
+								spacing={2}
+								alignContent={'start'}
+								h={{ base: 220 }}
+								my={4}
+								overflowY={'scroll'}
+							>
 								{categories.map((category) => (
 									<Button
 										key={category.name}
@@ -75,6 +91,87 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 									</Button>
 								))}
 							</SimpleGrid>
+						</TabPanel>
+						<TabPanel>
+							<Stack spacing={6} my={4}>
+								<Box>
+									<Formik
+										initialValues={{
+											playerName: '',
+										}}
+										validationSchema={Yup.object({
+											playerName: Yup.string()
+												.required('Player cannot have a blank name')
+												.test(
+													'test-duplicate-names',
+													'Cannot have players with duplicate names',
+													function (value) {
+														return !playerList.includes(value!);
+													}
+												),
+										})}
+										onSubmit={(values, actions) => {
+											actions.resetForm();
+											setPlayerList([...playerList, values.playerName]);
+										}}
+									>
+										{({ values, errors, isValid, handleChange }) => (
+											<Form>
+												<FormControl isInvalid={!!errors.playerName}>
+													<Stack isInline>
+														<Input
+															id="playerName"
+															placeholder="Enter a new player..."
+															onChange={handleChange}
+															value={values.playerName}
+														/>
+														<Button
+															type="submit"
+															disabled={!isValid}
+															colorScheme={'brand'}
+															variant={'solid'}
+														>
+															Add
+														</Button>
+													</Stack>
+													<FormErrorMessage>
+														{errors.playerName}
+													</FormErrorMessage>
+												</FormControl>
+											</Form>
+										)}
+									</Formik>
+								</Box>
+								<SimpleGrid
+									columns={2}
+									spacing={2}
+									alignContent={'start'}
+									h={{ base: 150 }}
+									overflowY={'scroll'}
+								>
+									{playerList.map((player) => (
+										<Center key={player} bg={'gray.100'} p={2} rounded={'lg'}>
+											<Text
+												fontSize={'lg'}
+												fontWeight={'medium'}
+												textAlign={'center'}
+												flex={1}
+											>
+												{player}
+											</Text>
+											<CloseButton
+												onClick={() => {
+													setPlayerList(
+														playerList.filter((cur) => cur !== player)
+													);
+												}}
+												size={'sm'}
+												color={'red.500'}
+											/>
+										</Center>
+									))}
+								</SimpleGrid>
+							</Stack>
 						</TabPanel>
 					</TabPanels>
 				</Tabs>

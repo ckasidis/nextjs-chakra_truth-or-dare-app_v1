@@ -7,10 +7,12 @@ import {
 	CloseButton,
 	FormControl,
 	FormErrorMessage,
+	FormHelperText,
 	Heading,
 	Input,
 	SimpleGrid,
 	Stack,
+	StackDivider,
 	Tab,
 	TabList,
 	TabPanel,
@@ -20,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
+import { setValues } from 'framer-motion/types/render/utils/setters';
 
 const categoryNames = [
 	'cat1',
@@ -46,6 +49,7 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 		categoryNames.map((name) => ({ name, selected: false }))
 	);
 	const [playerList, setPlayerList] = useState<string[]>([]);
+	const [noOfRounds, setNoOfRounds] = useState(0);
 
 	return (
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>
@@ -94,54 +98,51 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 						</TabPanel>
 						<TabPanel>
 							<Stack spacing={6} my={4}>
-								<Box>
-									<Formik
-										initialValues={{
-											playerName: '',
-										}}
-										validationSchema={Yup.object({
-											playerName: Yup.string()
-												.required('Player cannot have a blank name')
-												.test(
-													'test-duplicate-names',
-													'Cannot have players with duplicate names',
-													function (value) {
-														return !playerList.includes(value!);
-													}
-												),
-										})}
-										onSubmit={(values, actions) => {
-											actions.resetForm();
-											setPlayerList([...playerList, values.playerName]);
-										}}
-									>
-										{({ values, errors, isValid, handleChange }) => (
-											<Form>
-												<FormControl isInvalid={!!errors.playerName}>
-													<Stack isInline>
-														<Input
-															id="playerName"
-															placeholder="Enter a new player..."
-															onChange={handleChange}
-															value={values.playerName}
-														/>
-														<Button
-															type="submit"
-															disabled={!isValid}
-															colorScheme={'brand'}
-															variant={'solid'}
-														>
-															Add
-														</Button>
-													</Stack>
-													<FormErrorMessage>
-														{errors.playerName}
-													</FormErrorMessage>
-												</FormControl>
-											</Form>
-										)}
-									</Formik>
-								</Box>
+								<Formik
+									initialValues={{
+										playerName: '',
+									}}
+									validationSchema={Yup.object({
+										playerName: Yup.string()
+											.required('Player cannot have a blank name')
+											.test(
+												'test-duplicate-names',
+												'Cannot have players with duplicate names',
+												function (value) {
+													return !playerList.includes(value!);
+												}
+											),
+									})}
+									onSubmit={(values, actions) => {
+										actions.resetForm();
+										setPlayerList([...playerList, values.playerName]);
+									}}
+								>
+									{({ values, errors, isValid, handleChange }) => (
+										<Form>
+											<FormControl isInvalid={!!errors.playerName}>
+												<Stack isInline>
+													<Input
+														type="text"
+														id="playerName"
+														placeholder="Enter a new player..."
+														onChange={handleChange}
+														value={values.playerName}
+													/>
+													<Button
+														type="submit"
+														disabled={!isValid}
+														colorScheme={'brand'}
+														variant={'solid'}
+													>
+														Add
+													</Button>
+												</Stack>
+												<FormErrorMessage>{errors.playerName}</FormErrorMessage>
+											</FormControl>
+										</Form>
+									)}
+								</Formik>
 								<SimpleGrid
 									columns={2}
 									spacing={2}
@@ -171,6 +172,54 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 										</Center>
 									))}
 								</SimpleGrid>
+							</Stack>
+						</TabPanel>
+						<TabPanel>
+							<Stack spacing={8} my={4}>
+								<Formik
+									initialValues={{
+										noOfRounds: 0,
+									}}
+									validationSchema={Yup.object({
+										noOfRounds: Yup.number()
+											.min(1, 'Cannot have less than 1 rounds')
+											.max(100, 'Cannot have more than 100 rounds'),
+									})}
+									onSubmit={(values, actions) => {
+										setNoOfRounds(values.noOfRounds);
+										actions.resetForm();
+									}}
+								>
+									{({ values, errors, isValid, handleChange }) => (
+										<Form>
+											<FormControl isInvalid={!!errors.noOfRounds}>
+												<Stack isInline>
+													<Input
+														type="number"
+														id="noOfRounds"
+														placeholder="Enter number of rounds..."
+														onChange={handleChange}
+														value={values.noOfRounds}
+													/>
+													<Button
+														type="submit"
+														isDisabled={!isValid}
+														colorScheme={'brand'}
+														variant={'solid'}
+													>
+														Save
+													</Button>
+												</Stack>
+												<FormErrorMessage>{errors.noOfRounds}</FormErrorMessage>
+											</FormControl>
+										</Form>
+									)}
+								</Formik>
+								<Stack>
+									<Heading as={'h3'} size={'xs'} textAlign={'center'}>
+										Number of Rounds: {noOfRounds}
+									</Heading>
+								</Stack>
 							</Stack>
 						</TabPanel>
 					</TabPanels>

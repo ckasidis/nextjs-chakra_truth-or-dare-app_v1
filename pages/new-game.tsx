@@ -1,18 +1,16 @@
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import {
-	Box,
 	Button,
 	Center,
 	CloseButton,
 	FormControl,
 	FormErrorMessage,
-	FormHelperText,
 	Heading,
 	Input,
 	SimpleGrid,
 	Stack,
-	StackDivider,
 	Tab,
 	TabList,
 	TabPanel,
@@ -22,7 +20,6 @@ import {
 } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { setValues } from 'framer-motion/types/render/utils/setters';
 
 const categoryNames = [
 	'cat1',
@@ -45,6 +42,9 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 		selected: boolean;
 	}
 
+	const router = useRouter();
+
+	const [tabIndex, setTabIndex] = useState<0 | 1 | 2>(0);
 	const [categories, setCategories] = useState<Category[]>(
 		categoryNames.map((name) => ({ name, selected: false }))
 	);
@@ -57,7 +57,16 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 				<Heading as={'h1'} size={{ base: 'sm' }} textAlign={'center'}>
 					Game Settings
 				</Heading>
-				<Tabs pt={4} pb={8}>
+				<Tabs
+					index={tabIndex}
+					onChange={(index) => {
+						if (index !== 0 && index !== 1 && index !== 2) return;
+						setTabIndex(index);
+					}}
+					pt={4}
+					pb={8}
+					isFitted
+				>
 					<TabList>
 						<Tab>Categories</Tab>
 						<Tab>Players</Tab>
@@ -224,8 +233,27 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
-				<Button onClick={() => {}} colorScheme={'brand'} variant={'solid'}>
-					Next
+				<Button
+					onClick={() => {
+						switch (tabIndex) {
+							case 0:
+								setTabIndex(1);
+								break;
+							case 1:
+								setTabIndex(2);
+								break;
+							case 2:
+								// generate content from game settings
+								// router.push('/game');
+								break;
+							default:
+								break;
+						}
+					}}
+					colorScheme={'brand'}
+					variant={'solid'}
+				>
+					{tabIndex === 2 ? 'Start Game' : 'Next'}
 				</Button>
 			</Stack>
 		</Center>

@@ -1,6 +1,6 @@
-import { NextPage } from 'next';
+import { GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
 	Button,
 	Center,
@@ -20,28 +20,35 @@ import {
 } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
+import { GameContext } from '../context/GameContext';
 
-const categoryNames = [
-	'cat1',
-	'cat2',
-	'cat3',
-	'cat4',
-	'cat5',
-	'cat6',
-	'cat7',
-	'cat8',
-	'cat9',
-	'cat10',
-];
+const categoryNames = ['General', 'Love', 'Opinion'];
 
-interface NewGamePageProps {}
+export const getStaticProps: GetStaticProps = async () => {
+	const { records } = await (
+		await fetch(`${process.env.AIRTABLE_BASE_URL}`, {
+			headers: {
+				Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
+			},
+		})
+	).json();
 
-const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
-	interface Category {
-		name: string;
-		selected: boolean;
-	}
+	console.log(records);
 
+	return {
+		props: {
+			availableTruthOrDareList: records,
+		},
+	};
+};
+
+interface NewGamePageProps {
+	availableTruthOrDareList: TruthOrDare[];
+}
+
+const NewGamePage: NextPage<NewGamePageProps> = ({
+	availableTruthOrDareList,
+}) => {
 	const router = useRouter();
 
 	const [tabIndex, setTabIndex] = useState<0 | 1 | 2>(0);
@@ -50,6 +57,24 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 	);
 	const [playerList, setPlayerList] = useState<string[]>([]);
 	const [noOfRounds, setNoOfRounds] = useState(0);
+
+	const { setGameSettings } = useContext(GameContext);
+
+	const getTruthOrDareList = (
+		availableTruthOrDareList: TruthOrDare[],
+		selectedCategories: string[]
+	): TruthOrDare[] => {
+		let newTruthOrDareList: TruthOrDare[] = [];
+		for (const category of selectedCategories) {
+			newTruthOrDareList = [
+				...newTruthOrDareList,
+				...availableTruthOrDareList.filter(
+					(cur) => cur.fields.category === category
+				),
+			];
+		}
+		return newTruthOrDareList;
+	};
 
 	return (
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>
@@ -243,8 +268,21 @@ const NewGamePage: NextPage<NewGamePageProps> = ({}) => {
 								setTabIndex(2);
 								break;
 							case 2:
-								// generate content from game settings
-								// router.push('/game');
+								// set game settings
+								const selectedCategories = categories
+									.filter((category) => category.selected)
+									.map((category) => category.name);
+								const newGameSettings: GameSettings = {
+									newPlayerList: playerList,
+									newNoOfRounds: noOfRounds,
+									newTruthOrDareList: getTruthOrDareList(
+										availableTruthOrDareList,
+										selectedCategories
+									),
+								};
+								setGameSettings(newGameSettings);
+								// navigate to game page
+								router.push('/game');
 								break;
 							default:
 								break;

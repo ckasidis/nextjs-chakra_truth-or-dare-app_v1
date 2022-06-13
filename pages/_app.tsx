@@ -1,6 +1,7 @@
 import type { AppProps } from 'next/app';
 import { ChakraProvider, CSSReset, extendTheme } from '@chakra-ui/react';
 import { theme } from '@chakra-ui/pro-theme';
+import GameContextProvider from '../context/GameContext';
 
 const myTheme = extendTheme(
 	{
@@ -13,7 +14,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<ChakraProvider theme={myTheme}>
 			<CSSReset />
-			<Component {...pageProps} />
+			<GameContextProvider>
+				<Component {...pageProps} />
+			</GameContextProvider>
 		</ChakraProvider>
 	);
 }

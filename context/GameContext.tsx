@@ -2,21 +2,21 @@ import { NextPage } from 'next';
 import { createContext, useState } from 'react';
 
 interface IGameContext {
-	truthOrDareList: TruthOrDare[];
-	playerList: string[];
-	noOfRounds: number;
-	setGameSettings: (newGameSettings: GameSettings) => void;
-	loadGame: () => void;
-	curTruthOrDare: TruthOrDare | null;
+	gameSettings: GameSettings | null;
+	setGameSettings: (gameSettings: GameSettings) => void;
+	gameStatus: GameStatus | null;
+	roll: () => void;
+	reroll: () => void;
+	endgame: () => void;
 }
 
 export const GameContext = createContext<IGameContext>({
-	truthOrDareList: [],
-	playerList: [],
-	noOfRounds: 0,
+	gameSettings: null,
 	setGameSettings: () => {},
-	loadGame: () => {},
-	curTruthOrDare: null,
+	gameStatus: null,
+	roll: () => {},
+	reroll: () => {},
+	endgame: () => {},
 });
 
 interface GameContextProviderProps {
@@ -26,29 +26,50 @@ interface GameContextProviderProps {
 const GameContextProvider: NextPage<GameContextProviderProps> = ({
 	children,
 }) => {
-	const [truthOrDareList, setTruthOrDareList] = useState<TruthOrDare[]>([]);
-	const [playerList, setPlayerList] = useState<string[]>([]);
-	const [noOfRounds, setNoOfRounds] = useState(0);
 	const [gameSettings, setGameSettings] = useState<GameSettings | null>(null);
-	const [curTruthOrDare, setCurTruthOrDare] = useState<TruthOrDare | null>(
-		null
-	);
+	const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
 
 	return (
 		<GameContext.Provider
 			value={{
-				truthOrDareList,
-				playerList,
-				noOfRounds,
-				setGameSettings: (newGameSettings) => setGameSettings(newGameSettings),
-				loadGame: () => {
-					if (gameSettings === null) return;
-					setTruthOrDareList(gameSettings.newTruthOrDareList);
-					setPlayerList(gameSettings.newPlayerList);
-					setNoOfRounds(gameSettings.newNoOfRounds);
-					setGameSettings(null);
+				gameSettings,
+				setGameSettings: (gameSettings) => {
+					setGameSettings(gameSettings);
 				},
-				curTruthOrDare,
+				gameStatus,
+				roll: () => {
+					const { playerList, truthOrDareList } = gameSettings!;
+					const randomTruthOrDare =
+						truthOrDareList[Math.floor(Math.random() * truthOrDareList.length)];
+					const randomPlayer =
+						playerList[Math.floor(Math.random() * playerList.length)];
+					setGameStatus((old) =>
+						old === null
+							? {
+									curTruthOrDare: randomTruthOrDare,
+									curPlayer: randomPlayer,
+									curRound: 1,
+							  }
+							: {
+									curTruthOrDare: randomTruthOrDare,
+									curPlayer: randomPlayer,
+									curRound: old.curRound + 1,
+							  }
+					);
+				},
+				reroll: () => {
+					const { truthOrDareList } = gameSettings!;
+					const randomTruthOrDare =
+						truthOrDareList[Math.floor(Math.random() * truthOrDareList.length)];
+					setGameStatus({
+						...gameStatus!,
+						curTruthOrDare: randomTruthOrDare,
+					});
+				},
+				endgame: () => {
+					setGameSettings(null);
+					setGameStatus(null);
+				},
 			}}
 		>
 			{children}

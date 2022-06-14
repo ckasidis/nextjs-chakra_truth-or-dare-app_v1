@@ -261,14 +261,14 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 								validateOnMount
 								onSubmit={(values) => {
 									setGameSettings({
-										newTruthOrDareList: getTruthOrDareList(
+										truthOrDareList: getTruthOrDareList(
 											availableTruthOrDareList,
 											categories
 												.filter((category) => category.selected)
 												.map((category) => category.name)
 										),
-										newPlayerList: playerList,
-										newNoOfRounds: values.noOfRounds,
+										playerList,
+										noOfRounds: values.noOfRounds,
 									});
 									router.push('/game');
 								}}

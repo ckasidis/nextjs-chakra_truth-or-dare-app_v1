@@ -14,7 +14,13 @@ interface Category {
 }
 
 interface GameSettings {
-	newTruthOrDareList: TruthOrDare[];
-	newPlayerList: string[];
-	newNoOfRounds: number;
+	truthOrDareList: TruthOrDare[];
+	playerList: string[];
+	noOfRounds: number;
+}
+
+interface GameStatus {
+	curTruthOrDare: TruthOrDare;
+	curPlayer: string;
+	curRound: number;
 }

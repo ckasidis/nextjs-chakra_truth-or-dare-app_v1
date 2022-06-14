@@ -54,7 +54,6 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 		categoryNames.map((name) => ({ name, selected: false }))
 	);
 	const [playerList, setPlayerList] = useState<string[]>([]);
-	const [noOfRounds, setNoOfRounds] = useState(0);
 
 	const { setGameSettings } = useContext(GameContext);
 
@@ -254,7 +253,7 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 												.map((category) => category.name)
 										),
 										newPlayerList: playerList,
-										newNoOfRounds: noOfRounds,
+										newNoOfRounds: values.noOfRounds,
 									});
 									router.push('/game');
 								}}

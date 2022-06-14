@@ -43,8 +43,8 @@ const GameContextProvider: NextPage<GameContextProviderProps> = ({
 						truthOrDareList[Math.floor(Math.random() * truthOrDareList.length)];
 					const randomPlayer =
 						playerList[Math.floor(Math.random() * playerList.length)];
-					setGameStatus((old) =>
-						old === null
+					setGameStatus(
+						gameStatus === null
 							? {
 									curTruthOrDare: randomTruthOrDare,
 									curPlayer: randomPlayer,
@@ -53,7 +53,7 @@ const GameContextProvider: NextPage<GameContextProviderProps> = ({
 							: {
 									curTruthOrDare: randomTruthOrDare,
 									curPlayer: randomPlayer,
-									curRound: old.curRound + 1,
+									curRound: gameStatus.curRound + 1,
 							  }
 					);
 				},

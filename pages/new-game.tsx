@@ -33,8 +33,6 @@ export const getStaticProps: GetStaticProps = async () => {
 		})
 	).json();
 
-	console.log(records);
-
 	return {
 		props: {
 			availableTruthOrDareList: records,
@@ -76,6 +74,11 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 		return newTruthOrDareList;
 	};
 
+	const validCategories = categories.filter(
+		(category) => category.selected
+	).length;
+	const validPlayers = playerList.length;
+
 	return (
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>
 			<Stack w={'90%'}>
@@ -88,72 +91,79 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 						if (index !== 0 && index !== 1 && index !== 2) return;
 						setTabIndex(index);
 					}}
-					pt={4}
-					pb={8}
 					isFitted
 				>
 					<TabList>
 						<Tab>Categories</Tab>
-						<Tab>Players</Tab>
-						<Tab>Rounds</Tab>
+						<Tab isDisabled={!validCategories}>Players</Tab>
+						<Tab isDisabled={!validCategories || !validPlayers}>Rounds</Tab>
 					</TabList>
-					<TabPanels h={{ base: 270 }}>
+					<TabPanels>
 						<TabPanel>
-							<SimpleGrid
-								columns={2}
-								spacing={2}
-								alignContent={'start'}
-								h={{ base: 220 }}
-								my={4}
-								overflowY={'scroll'}
-							>
-								{categories.map((category) => (
-									<Button
-										key={category.name}
-										onClick={() => {
-											setCategories(
-												categories.map((cur) =>
-													cur.name === category.name
-														? {
-																...cur,
-																selected: !cur.selected,
-														  }
-														: cur
-												)
-											);
-										}}
-										colorScheme={category.selected ? 'pink' : 'gray'}
-										variant={'solid'}
-									>
-										{category.name}
-									</Button>
-								))}
-							</SimpleGrid>
+							<Stack spacing={6} my={2}>
+								<SimpleGrid
+									columns={2}
+									spacing={2}
+									alignContent={'start'}
+									maxH={64}
+									overflowY={'scroll'}
+								>
+									{categories.map((category) => (
+										<Button
+											key={category.name}
+											onClick={() => {
+												setCategories(
+													categories.map((cur) =>
+														cur.name === category.name
+															? {
+																	...cur,
+																	selected: !cur.selected,
+															  }
+															: cur
+													)
+												);
+											}}
+											colorScheme={category.selected ? 'pink' : 'gray'}
+											variant={'solid'}
+										>
+											{category.name}
+										</Button>
+									))}
+								</SimpleGrid>
+								<Button
+									onClick={() => setTabIndex(1)}
+									isDisabled={!validCategories}
+									colorScheme={'brand'}
+									variant={'solid'}
+								>
+									Next
+								</Button>
+							</Stack>
 						</TabPanel>
 						<TabPanel>
-							<Stack spacing={6} my={4}>
-								<Formik
-									initialValues={{
-										playerName: '',
-									}}
-									validationSchema={Yup.object({
-										playerName: Yup.string()
-											.required('Player cannot have a blank name')
-											.test(
-												'test-duplicate-names',
-												'Cannot have players with duplicate names',
-												function (value) {
-													return !playerList.includes(value!);
-												}
-											),
-									})}
-									onSubmit={(values, actions) => {
-										actions.resetForm();
-										setPlayerList([...playerList, values.playerName]);
-									}}
-								>
-									{({ values, errors, isValid, handleChange }) => (
-										<Form>
+							<Formik
+								initialValues={{
+									playerName: '',
+								}}
+								validationSchema={Yup.object({
+									playerName: Yup.string()
+										.required('Player cannot have a blank name')
+										.test(
+											'test-duplicate-names',
+											'Cannot have players with duplicate names',
+											function (value) {
+												return !playerList.includes(value!);
+											}
+										),
+								})}
+								onSubmit={(values, actions) => {
+									actions.resetForm();
+									setPlayerList([...playerList, values.playerName]);
+								}}
+							>
+								{({ values, errors, isValid, handleChange }) => (
+									<Form>
+										<Stack spacing={6} my={2}>
 											<FormControl isInvalid={!!errors.playerName}>
 												<Stack isInline>
 													<Input
@@ -174,125 +184,121 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 												</Stack>
 												<FormErrorMessage>{errors.playerName}</FormErrorMessage>
 											</FormControl>
-										</Form>
-									)}
-								</Formik>
-								<SimpleGrid
-									columns={2}
-									spacing={2}
-									alignContent={'start'}
-									h={{ base: 150 }}
-									overflowY={'scroll'}
-								>
-									{playerList.map((player) => (
-										<Center key={player} bg={'gray.100'} p={2} rounded={'lg'}>
-											<Text
-												fontSize={'lg'}
-												fontWeight={'medium'}
-												textAlign={'center'}
-												flex={1}
+											{playerList.length && (
+												<SimpleGrid
+													columns={2}
+													spacing={2}
+													alignContent={'start'}
+													maxH={64}
+													overflowY={'scroll'}
+												>
+													{playerList.map((player) => (
+														<Center
+															key={player}
+															bg={'gray.100'}
+															p={2}
+															rounded={'lg'}
+														>
+															<Text
+																fontSize={'lg'}
+																fontWeight={'medium'}
+																textAlign={'center'}
+																flex={1}
+															>
+																{player}
+															</Text>
+															<CloseButton
+																onClick={() => {
+																	setPlayerList(
+																		playerList.filter((cur) => cur !== player)
+																	);
+																}}
+																size={'sm'}
+																color={'red.500'}
+															/>
+														</Center>
+													))}
+												</SimpleGrid>
+											)}
+											<Button
+												onClick={() => setTabIndex(2)}
+												isDisabled={!validPlayers}
+												colorScheme={'brand'}
+												variant={'solid'}
 											>
-												{player}
-											</Text>
-											<CloseButton
-												onClick={() => {
-													setPlayerList(
-														playerList.filter((cur) => cur !== player)
-													);
-												}}
-												size={'sm'}
-												color={'red.500'}
-											/>
-										</Center>
-									))}
-								</SimpleGrid>
-							</Stack>
+												Next
+											</Button>
+										</Stack>
+									</Form>
+								)}
+							</Formik>
 						</TabPanel>
 						<TabPanel>
-							<Stack spacing={8} my={4}>
-								<Formik
-									initialValues={{
-										noOfRounds: 0,
-									}}
-									validationSchema={Yup.object({
-										noOfRounds: Yup.number()
-											.min(1, 'Cannot have less than 1 rounds')
-											.max(100, 'Cannot have more than 100 rounds'),
-									})}
-									onSubmit={(values, actions) => {
-										setNoOfRounds(values.noOfRounds);
-										actions.resetForm();
-									}}
-								>
-									{({ values, errors, isValid, handleChange }) => (
-										<Form>
-											<FormControl isInvalid={!!errors.noOfRounds}>
+							<Formik
+								initialValues={{
+									noOfRounds: 0,
+								}}
+								validationSchema={Yup.object({
+									noOfRounds: Yup.number()
+										.required('This field is required!')
+										.min(1, 'Cannot have less than 1 rounds')
+										.max(100, 'Cannot have more than 100 rounds'),
+								})}
+								validateOnMount
+								onSubmit={(values) => {
+									setGameSettings({
+										newTruthOrDareList: getTruthOrDareList(
+											availableTruthOrDareList,
+											categories
+												.filter((category) => category.selected)
+												.map((category) => category.name)
+										),
+										newPlayerList: playerList,
+										newNoOfRounds: noOfRounds,
+									});
+									router.push('/game');
+								}}
+							>
+								{({
+									values,
+									errors,
+									touched,
+									isValid,
+									handleChange,
+									handleBlur,
+								}) => (
+									<Form>
+										<Stack spacing={6} my={2}>
+											<FormControl
+												isInvalid={!!errors.noOfRounds && touched.noOfRounds}
+											>
 												<Stack isInline>
 													<Input
 														type="number"
 														id="noOfRounds"
 														placeholder="Enter number of rounds..."
 														onChange={handleChange}
+														onBlur={handleBlur}
 														value={values.noOfRounds}
 													/>
-													<Button
-														type="submit"
-														isDisabled={!isValid}
-														colorScheme={'brand'}
-														variant={'solid'}
-													>
-														Save
-													</Button>
 												</Stack>
 												<FormErrorMessage>{errors.noOfRounds}</FormErrorMessage>
 											</FormControl>
-										</Form>
-									)}
-								</Formik>
-								<Stack>
-									<Heading as={'h3'} size={'xs'} textAlign={'center'}>
-										Number of Rounds: {noOfRounds}
-									</Heading>
-								</Stack>
-							</Stack>
+											<Button
+												type="submit"
+												isDisabled={!isValid}
+												colorScheme={'brand'}
+												variant={'solid'}
+											>
+												Start Game
+											</Button>
+										</Stack>
+									</Form>
+								)}
+							</Formik>
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
-				<Button
-					onClick={() => {
-						switch (tabIndex) {
-							case 0:
-								setTabIndex(1);
-								break;
-							case 1:
-								setTabIndex(2);
-								break;
-							case 2:
-								// set game settings
-								const selectedCategories = categories
-									.filter((category) => category.selected)
-									.map((category) => category.name);
-								const newGameSettings: GameSettings = {
-									newPlayerList: playerList,
-									newNoOfRounds: noOfRounds,
-									newTruthOrDareList: getTruthOrDareList(
-										availableTruthOrDareList,
-										selectedCategories
-									),
-								};
-								setGameSettings(newGameSettings);
-								// navigate to game page
-								router.push('/game');
-								break;
-							default:
-								break;
-						}
-					}}
-					colorScheme={'brand'}
-					variant={'solid'}
-				>
-					{tabIndex === 2 ? 'Start Game' : 'Next'}
-				</Button>
 			</Stack>
 		</Center>
 	);

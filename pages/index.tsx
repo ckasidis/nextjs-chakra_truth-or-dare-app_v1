@@ -12,7 +12,7 @@ const HomePage: NextPage<HomePageProps> = ({}) => {
 				<Heading as={'h1'} size={'md'} textAlign={'center'}>
 					Truth or Dare
 				</Heading>
-				<Stack spacing={2}>
+				<Stack spacing={3}>
 					<Button
 						onClick={() => router.push('/new-game')}
 						colorScheme={'brand'}
@@ -20,9 +20,7 @@ const HomePage: NextPage<HomePageProps> = ({}) => {
 					>
 						New Game
 					</Button>
-					<Button colorScheme={'brand'} variant={'outline'}>
-						Resume
-					</Button>
+					<Button>Resume</Button>
 				</Stack>
 			</Stack>
 		</Center>

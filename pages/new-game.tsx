@@ -5,6 +5,7 @@ import {
 	Button,
 	Center,
 	CloseButton,
+	Flex,
 	FormControl,
 	FormErrorMessage,
 	Heading,
@@ -18,6 +19,7 @@ import {
 	Tabs,
 	Text,
 } from '@chakra-ui/react';
+import { FaCheck } from 'react-icons/fa';
 import { Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { GameContext } from '../context/GameContext';
@@ -90,6 +92,7 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 						if (index !== 0 && index !== 1 && index !== 2) return;
 						setTabIndex(index);
 					}}
+					colorScheme={'blue'}
 					isFitted
 				>
 					<TabList>
@@ -122,10 +125,20 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 													)
 												);
 											}}
-											colorScheme={category.selected ? 'pink' : 'gray'}
+											colorScheme={category.selected ? 'blue' : 'gray'}
+											color={category.selected ? 'white' : ''}
 											variant={'solid'}
 										>
-											{category.name}
+											{category.selected ? (
+												<Flex w={'100%'}>
+													<Text flex={1} textAlign={'center'}>
+														{category.name}
+													</Text>
+													<FaCheck />
+												</Flex>
+											) : (
+												<Text>{category.name}</Text>
+											)}
 										</Button>
 									))}
 								</SimpleGrid>
@@ -163,8 +176,8 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 								{({ values, errors, isValid, handleChange }) => (
 									<Form>
 										<Stack spacing={6} my={2}>
-											<FormControl isInvalid={!!errors.playerName}>
-												<Stack isInline>
+											<Flex gap={2}>
+												<FormControl isInvalid={!!errors.playerName}>
 													<Input
 														type="text"
 														id="playerName"
@@ -172,17 +185,19 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 														onChange={handleChange}
 														value={values.playerName}
 													/>
-													<Button
-														type="submit"
-														disabled={!isValid}
-														colorScheme={'brand'}
-														variant={'solid'}
-													>
-														Add
-													</Button>
-												</Stack>
-												<FormErrorMessage>{errors.playerName}</FormErrorMessage>
-											</FormControl>
+													<FormErrorMessage>
+														{errors.playerName}
+													</FormErrorMessage>
+												</FormControl>
+												<Button
+													type="submit"
+													disabled={!isValid}
+													colorScheme={'brand'}
+													variant={'solid'}
+												>
+													Add
+												</Button>
+											</Flex>
 											{playerList.length && (
 												<SimpleGrid
 													columns={2}

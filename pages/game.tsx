@@ -1,4 +1,12 @@
-import { Button, Center, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+	Badge,
+	Button,
+	Center,
+	Flex,
+	Heading,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
@@ -29,7 +37,17 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 							{gameStatus.curPlayer}
 						</Heading>
 					</Stack>
-					<Text>{gameStatus.curTruthOrDare.fields.description}</Text>
+					<Stack>
+						<Flex gap={1}>
+							<Badge colorScheme={'blue'}>
+								{gameStatus.curTruthOrDare.fields.type}
+							</Badge>
+							<Badge colorScheme={'blue'}>
+								{gameStatus.curTruthOrDare.fields.category}
+							</Badge>
+						</Flex>
+						<Text>{gameStatus.curTruthOrDare.fields.description}</Text>
+					</Stack>
 					<Stack spacing={3}>
 						{gameStatus.curRound >= gameSettings.noOfRounds ? (
 							<Button

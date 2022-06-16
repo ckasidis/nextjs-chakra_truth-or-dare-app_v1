@@ -1,7 +1,9 @@
 import { NextPage } from 'next';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
+import { supportsLocalStorage } from '../utilities/localStorage';
 
 interface IGameContext {
+	localStorageLoaded: boolean;
 	gameSettings: GameSettings | null;
 	setGameSettings: (gameSettings: GameSettings) => void;
 	gameStatus: GameStatus | null;
@@ -11,6 +13,7 @@ interface IGameContext {
 }
 
 export const GameContext = createContext<IGameContext>({
+	localStorageLoaded: false,
 	gameSettings: null,
 	setGameSettings: () => {},
 	gameStatus: null,
@@ -23,15 +26,42 @@ interface GameContextProviderProps {
 	children: React.ReactNode;
 }
 
-const GameContextProvider: NextPage<GameContextProviderProps> = ({
+export const GameContextProvider: NextPage<GameContextProviderProps> = ({
 	children,
 }) => {
 	const [gameSettings, setGameSettings] = useState<GameSettings | null>(null);
 	const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
+	const [localStorageLoaded, setLocalStorageLoaded] = useState(false);
+
+	useEffect(() => {
+		setGameSettings(
+			supportsLocalStorage() && localStorage.getItem('gameSettings')
+				? JSON.parse(localStorage.getItem('gameSettings')!)
+				: null
+		);
+		setGameStatus(
+			supportsLocalStorage() && localStorage.getItem('gameStatus')
+				? JSON.parse(localStorage.getItem('gameStatus')!)
+				: null
+		);
+		setLocalStorageLoaded(true);
+	}, []);
+
+	useEffect(() => {
+		if (supportsLocalStorage())
+			localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
+	}, [gameSettings]);
+
+	useEffect(() => {
+		if (supportsLocalStorage()) {
+			localStorage.setItem('gameStatus', JSON.stringify(gameStatus));
+		}
+	}, [gameStatus]);
 
 	return (
 		<GameContext.Provider
 			value={{
+				localStorageLoaded,
 				gameSettings,
 				setGameSettings: (gameSettings) => {
 					setGameSettings(gameSettings);

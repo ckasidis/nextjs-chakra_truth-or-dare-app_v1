@@ -51,13 +51,13 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 }) => {
 	const router = useRouter();
 
+	const { setGameSettings } = useContext(GameContext);
+
 	const [tabIndex, setTabIndex] = useState<0 | 1 | 2>(0);
 	const [categories, setCategories] = useState<Category[]>(
 		categoryNames.map((name) => ({ name, selected: false }))
 	);
 	const [playerList, setPlayerList] = useState<string[]>([]);
-
-	const { setGameSettings } = useContext(GameContext);
 
 	const getTruthOrDareList = (
 		availableTruthOrDareList: TruthOrDare[],

@@ -1,6 +1,6 @@
 import { GetStaticProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
 	Button,
 	Center,
@@ -51,13 +51,17 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 }) => {
 	const router = useRouter();
 
-	const { setGameSettings } = useContext(GameContext);
+	const { setGameSettings, endgame } = useContext(GameContext);
 
 	const [tabIndex, setTabIndex] = useState<0 | 1 | 2>(0);
 	const [categories, setCategories] = useState<Category[]>(
 		categoryNames.map((name) => ({ name, selected: false }))
 	);
 	const [playerList, setPlayerList] = useState<string[]>([]);
+
+	useEffect(() => {
+		endgame();
+	}, []);
 
 	const getTruthOrDareList = (
 		availableTruthOrDareList: TruthOrDare[],

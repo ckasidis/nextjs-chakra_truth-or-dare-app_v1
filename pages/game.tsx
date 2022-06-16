@@ -11,19 +11,33 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 import { GameContext } from '../context/GameContext';
+import { supportsLocalStorage } from '../utilities/localStorage';
 
 interface GamePageProps {}
 
 const GamePage: NextPage<GamePageProps> = ({}) => {
 	const router = useRouter();
 
-	const { gameSettings, gameStatus, roll, reroll, endgame } =
-		useContext(GameContext);
+	const {
+		localStorageLoaded,
+		gameSettings,
+		gameStatus,
+		roll,
+		reroll,
+		endgame,
+	} = useContext(GameContext);
 
 	useEffect(() => {
-		if (gameSettings === null) router.push('/');
-		else if (gameStatus === null) roll();
+		if (gameSettings && gameStatus === null) roll();
+		else if (!supportsLocalStorage() || !localStorage.getItem('gameSettings'))
+			router.push('/');
 	}, []);
+
+	useEffect(() => {
+		if (!localStorageLoaded) return;
+		else if (gameSettings === null) router.push('/');
+		else if (gameStatus === null) roll();
+	}, [localStorageLoaded]);
 
 	return (
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>

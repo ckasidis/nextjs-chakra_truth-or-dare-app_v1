@@ -313,6 +313,13 @@ const NewGamePage: NextPage<NewGamePageProps> = ({
 						</TabPanel>
 					</TabPanels>
 				</Tabs>
+				<Button
+					onClick={() => router.push('/')}
+					colorScheme={'blue'}
+					variant={'link'}
+				>
+					Back
+				</Button>
 			</Stack>
 		</Center>
 	);

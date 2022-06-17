@@ -23,7 +23,8 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 		gameSettings,
 		gameStatus,
 		roll,
-		reroll,
+		rerollTruthOrDare,
+		rerollPlayer,
 		endgame,
 	} = useContext(GameContext);
 
@@ -76,10 +77,25 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 							</Button>
 						) : (
 							<Button onClick={roll} colorScheme={'brand'} variant={'solid'}>
-								Roll
+								Next
 							</Button>
 						)}
-						<Button onClick={reroll}>Reroll</Button>
+						<Flex gap={2}>
+							<Button
+								onClick={rerollTruthOrDare}
+								flex={1}
+								fontSize={{ base: 'small', sm: 'medium' }}
+							>
+								Reroll Truth or Dare
+							</Button>
+							<Button
+								onClick={rerollPlayer}
+								flex={1}
+								fontSize={{ base: 'small', sm: 'medium' }}
+							>
+								Reroll Player
+							</Button>
+						</Flex>
 					</Stack>
 					<Button
 						onClick={() => router.push('/')}

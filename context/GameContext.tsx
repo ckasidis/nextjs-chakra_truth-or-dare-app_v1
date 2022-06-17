@@ -8,7 +8,8 @@ interface IGameContext {
 	setGameSettings: (gameSettings: GameSettings) => void;
 	gameStatus: GameStatus | null;
 	roll: () => void;
-	reroll: () => void;
+	rerollTruthOrDare: () => void;
+	rerollPlayer: () => void;
 	endgame: () => void;
 }
 
@@ -18,7 +19,8 @@ export const GameContext = createContext<IGameContext>({
 	setGameSettings: () => {},
 	gameStatus: null,
 	roll: () => {},
-	reroll: () => {},
+	rerollTruthOrDare: () => {},
+	rerollPlayer: () => {},
 	endgame: () => {},
 });
 
@@ -87,13 +89,22 @@ export const GameContextProvider: NextPage<GameContextProviderProps> = ({
 							  }
 					);
 				},
-				reroll: () => {
+				rerollTruthOrDare: () => {
 					const { truthOrDareList } = gameSettings!;
 					const randomTruthOrDare =
 						truthOrDareList[Math.floor(Math.random() * truthOrDareList.length)];
 					setGameStatus({
 						...gameStatus!,
 						curTruthOrDare: randomTruthOrDare,
+					});
+				},
+				rerollPlayer: () => {
+					const { playerList } = gameSettings!;
+					const randomPlayer =
+						playerList[Math.floor(Math.random() * playerList.length)];
+					setGameStatus({
+						...gameStatus!,
+						curPlayer: randomPlayer,
 					});
 				},
 				endgame: () => {

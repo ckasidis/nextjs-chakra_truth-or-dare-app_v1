@@ -50,11 +50,13 @@ export const GameContextProvider: NextPage<GameContextProviderProps> = ({
 	}, []);
 
 	useEffect(() => {
+		if (!localStorageLoaded) return;
 		if (supportsLocalStorage())
 			localStorage.setItem('gameSettings', JSON.stringify(gameSettings));
 	}, [gameSettings]);
 
 	useEffect(() => {
+		if (!localStorageLoaded) return;
 		if (supportsLocalStorage()) {
 			localStorage.setItem('gameStatus', JSON.stringify(gameStatus));
 		}

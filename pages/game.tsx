@@ -5,11 +5,14 @@ import {
 	Flex,
 	Heading,
 	Stack,
+	Tag,
+	TagLabel,
 	Text,
 } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
+import { FaUser } from 'react-icons/fa';
 import { GameContext } from '../context/GameContext';
 import { supportsLocalStorage } from '../utilities/localStorage';
 
@@ -44,13 +47,18 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>
 			{gameSettings && gameStatus ? (
 				<Stack spacing={8} w={'80%'}>
-					<Stack>
+					<Stack alignItems={'center'}>
 						<Heading size={'md'} fontWeight={'bold'} textAlign={'center'}>
 							Round {gameStatus.curRound}/{gameSettings.noOfRounds}
 						</Heading>
-						<Heading size={'xs'} fontWeight={'bold'} textAlign={'center'}>
-							{gameStatus.curPlayer}
-						</Heading>
+						<Flex
+							alignItems={'center'}
+							gap={2}
+							fontSize={{ base: 'lg', sm: 'xl' }}
+						>
+							<FaUser />
+							<Text as={'strong'}>{gameStatus.curPlayer}</Text>
+						</Flex>
 					</Stack>
 					<Stack>
 						<Flex gap={1}>
@@ -91,7 +99,7 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 							<Button
 								onClick={rerollPlayer}
 								flex={1}
-								fontSize={{ base: 'small', sm: 'medium' }}
+								fontSize={{ base: 'sm', sm: 'md' }}
 							>
 								Reroll Player
 							</Button>

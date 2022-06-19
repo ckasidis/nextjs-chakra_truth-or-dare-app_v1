@@ -2,17 +2,29 @@ import {
 	Badge,
 	Button,
 	Center,
+	CloseButton,
 	Flex,
+	FormControl,
+	FormErrorMessage,
 	Heading,
+	Input,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalHeader,
+	ModalOverlay,
+	SimpleGrid,
 	Stack,
-	Tag,
-	TagLabel,
 	Text,
+	useDisclosure,
 } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
+import * as Yup from 'yup';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
-import { FaUser } from 'react-icons/fa';
+import { FaEdit, FaUser } from 'react-icons/fa';
 import { GameContext } from '../context/GameContext';
 import { supportsLocalStorage } from '../utilities/localStorage';
 
@@ -24,6 +36,7 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 	const {
 		localStorageLoaded,
 		gameSettings,
+		setGameSettings,
 		gameStatus,
 		roll,
 		rerollTruthOrDare,
@@ -43,6 +56,8 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 		else if (gameStatus === null) roll();
 	}, [localStorageLoaded]);
 
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	return (
 		<Center as={'section'} maxW={'lg'} h={'100vh'} mx={'auto'}>
 			{gameSettings && gameStatus ? (
@@ -59,6 +74,15 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 							<FaUser />
 							<Text as={'strong'}>{gameStatus.curPlayer}</Text>
 						</Flex>
+						<Button
+							onClick={onOpen}
+							leftIcon={<FaEdit />}
+							size={'sm'}
+							colorScheme={'blue'}
+							fontSize={'sm'}
+						>
+							Edit
+						</Button>
 					</Stack>
 					<Stack>
 						<Flex gap={1}>
@@ -112,6 +136,112 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 					>
 						Quit Game
 					</Button>
+					<Modal isOpen={isOpen} onClose={onClose}>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Edit Players</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody pb={8}>
+								<Formik
+									initialValues={{
+										playerName: '',
+									}}
+									validationSchema={Yup.object({
+										playerName: Yup.string()
+											.required('Player cannot have a blank name')
+											.test(
+												'test-duplicate-names',
+												'Cannot have players with duplicate names',
+												function (value) {
+													return !gameSettings.playerList.includes(value!);
+												}
+											),
+									})}
+									onSubmit={(values, actions) => {
+										actions.resetForm();
+										setGameSettings({
+											...gameSettings,
+											playerList: [
+												...gameSettings.playerList,
+												values.playerName,
+											],
+										});
+									}}
+								>
+									{({ values, errors, isValid, handleChange }) => (
+										<Form>
+											<Stack spacing={6} my={2}>
+												<Flex gap={2}>
+													<FormControl isInvalid={!!errors.playerName}>
+														<Input
+															type="text"
+															id="playerName"
+															placeholder="Enter a new player..."
+															onChange={handleChange}
+															value={values.playerName}
+														/>
+														<FormErrorMessage>
+															{errors.playerName}
+														</FormErrorMessage>
+													</FormControl>
+													<Button
+														type="submit"
+														disabled={!isValid}
+														colorScheme={'brand'}
+														variant={'solid'}
+													>
+														Add
+													</Button>
+												</Flex>
+												{gameSettings.playerList.length && (
+													<SimpleGrid
+														columns={2}
+														spacing={2}
+														alignContent={'start'}
+														maxH={64}
+														overflowY={'scroll'}
+													>
+														{gameSettings.playerList.map((player) => (
+															<Center
+																key={player}
+																bg={'gray.100'}
+																p={2}
+																rounded={'lg'}
+															>
+																<Text
+																	fontSize={'lg'}
+																	fontWeight={'medium'}
+																	textAlign={'center'}
+																	flex={1}
+																>
+																	{player}
+																</Text>
+																{gameSettings.playerList.length > 1 && (
+																	<CloseButton
+																		onClick={() => {
+																			setGameSettings({
+																				...gameSettings,
+																				playerList:
+																					gameSettings.playerList.filter(
+																						(cur) => cur !== player
+																					),
+																			});
+																		}}
+																		size={'sm'}
+																		color={'red.500'}
+																	/>
+																)}
+															</Center>
+														))}
+													</SimpleGrid>
+												)}
+											</Stack>
+										</Form>
+									)}
+								</Formik>
+							</ModalBody>
+						</ModalContent>
+					</Modal>
 				</Stack>
 			) : (
 				<Text>Loading...</Text>

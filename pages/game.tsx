@@ -216,19 +216,21 @@ const GamePage: NextPage<GamePageProps> = ({}) => {
 																>
 																	{player}
 																</Text>
-																<CloseButton
-																	onClick={() => {
-																		setGameSettings({
-																			...gameSettings,
-																			playerList:
-																				gameSettings.playerList.filter(
-																					(cur) => cur !== player
-																				),
-																		});
-																	}}
-																	size={'sm'}
-																	color={'red.500'}
-																/>
+																{gameSettings.playerList.length > 1 && (
+																	<CloseButton
+																		onClick={() => {
+																			setGameSettings({
+																				...gameSettings,
+																				playerList:
+																					gameSettings.playerList.filter(
+																						(cur) => cur !== player
+																					),
+																			});
+																		}}
+																		size={'sm'}
+																		color={'red.500'}
+																	/>
+																)}
 															</Center>
 														))}
 													</SimpleGrid>
